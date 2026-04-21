@@ -17,7 +17,8 @@ Update the placeholder copy and links in `src/siteData.ts`.
 
 1. Create a repository named `<your-github-username>.github.io`.
 2. Push this project to that repository.
-3. In GitHub, enable Pages with `GitHub Actions`.
-4. Push to `main` to trigger `.github/workflows/deploy.yml`.
+3. Run `npm run build:pages` to generate the `docs/` folder.
+4. In GitHub Pages, set the publishing source to `Deploy from a branch`.
+5. Choose branch `main` and folder `/docs`.
 
-If you need to publish under a project path instead of the personal root domain, set `VITE_BASE_PATH` in the workflow or build environment.
+If you need to publish under a project path instead of the personal root domain, set `VITE_BASE_PATH` in the build environment.
