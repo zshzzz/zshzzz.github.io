@@ -1,0 +1,70 @@
+/* ===== Neon Clock ===== */
+.clock-widget {
+  padding: 20px 22px;
+  border-radius: 24px;
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.clock-widget::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent 55%);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.clock-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.clock-digits {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.clock-digit-group {
+  color: var(--accent);
+  text-shadow:
+    0 0 8px var(--glow-color),
+    0 0 24px var(--glow-color);
+  padding: 4px 6px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-soft);
+  letter-spacing: 0.06em;
+}
+
+.clock-colon {
+  color: var(--accent);
+  opacity: 0.7;
+  animation: colonBlink 1s step-end infinite;
+  font-size: 2rem;
+}
+
+@keyframes colonBlink {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.2; }
+}
+
+.clock-date {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}

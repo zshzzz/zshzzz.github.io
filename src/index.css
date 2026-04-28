@@ -12,6 +12,13 @@
   --text-soft: #c7c3b8;
   --text-muted: #9b978e;
   --accent: #ffd166;
+  --accent2: #2ec4b6;
+  --glow-color: rgba(255, 209, 102, 0.4);
+  --glow-color2: rgba(46, 196, 182, 0.35);
+  --grid-line: rgba(255, 255, 255, 0.025);
+  --terminal-bg: rgba(6, 10, 16, 0.95);
+  --terminal-text: #2ec4b6;
+  --terminal-prompt: #ffd166;
   --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
   --font-mono: 'IBM Plex Mono', 'Cascadia Code', monospace;
   color-scheme: dark;
@@ -42,8 +49,8 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: radial-gradient(circle at center, black 42%, transparent 90%);
   pointer-events: none;
@@ -63,4 +70,22 @@ select {
 
 #root {
   min-height: 100vh;
+}
+
+/* ===== Typewriter ===== */
+.typewriter {
+  display: inline;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  color: var(--accent);
+  font-weight: 300;
+  animation: cursorBlink 0.8s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
