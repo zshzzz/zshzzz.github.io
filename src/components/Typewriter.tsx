@@ -9,8 +9,8 @@ interface TypewriterProps {
 
 export default function Typewriter({
   phrases,
-  typeSpeed = 80,
-  deleteSpeed = 40,
+  typeSpeed = 72,
+  deleteSpeed = 36,
   pauseDuration = 2200,
 }: TypewriterProps) {
   const [text, setText] = useState('')
@@ -18,33 +18,34 @@ export default function Typewriter({
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
-    const current = phrases[phraseIndex]
+    if (!phrases.length) return
+    const current = phrases[phraseIndex % phrases.length]
+    let timeoutId: ReturnType<typeof setTimeout>
 
-    const timeout = setTimeout(
-      () => {
-        if (!isDeleting) {
-          setText(current.slice(0, text.length + 1))
-          if (text.length + 1 === current.length) {
-            setTimeout(() => setIsDeleting(true), pauseDuration)
-          }
-        } else {
-          setText(current.slice(0, text.length - 1))
-          if (text.length - 1 === 0) {
-            setIsDeleting(false)
-            setPhraseIndex((i) => (i + 1) % phrases.length)
-          }
-        }
-      },
-      isDeleting ? deleteSpeed : typeSpeed
-    )
+    if (!isDeleting && text === current) {
+      timeoutId = setTimeout(() => setIsDeleting(true), pauseDuration)
+    } else if (isDeleting && text === '') {
+      setIsDeleting(false)
+      setPhraseIndex((i) => (i + 1) % phrases.length)
+    } else {
+      timeoutId = setTimeout(
+        () => {
+          const nextLen = text.length + (isDeleting ? -1 : 1)
+          setText(current.slice(0, nextLen))
+        },
+        isDeleting ? deleteSpeed : typeSpeed
+      )
+    }
 
-    return () => clearTimeout(timeout)
+    return () => clearTimeout(timeoutId)
   }, [text, isDeleting, phraseIndex, phrases, typeSpeed, deleteSpeed, pauseDuration])
 
   return (
     <span className="typewriter">
       {text}
-      <span className="typewriter-cursor" aria-hidden="true">|</span>
+      <span className="typewriter-cursor" aria-hidden="true">
+        |
+      </span>
     </span>
   )
 }

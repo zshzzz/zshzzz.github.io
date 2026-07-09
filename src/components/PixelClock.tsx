@@ -199,7 +199,7 @@ export default function PixelClock() {
     <div className="widget-card">
       <div className="widget-header">
         <span className="widget-kicker">像素时钟</span>
-        <span className="widget-sub">北京 UTC+8</span>
+        <span className="widget-sub">北京 · UTC+8</span>
       </div>
       <div className="pixel-clock-body" ref={containerRef}>
         <PixelRow chars={dateStr.split('')} containerWidth={containerWidth} />

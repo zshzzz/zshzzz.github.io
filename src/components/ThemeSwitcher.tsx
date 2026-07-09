@@ -1,36 +1,40 @@
 import { useEffect, useState } from 'react'
-
-type Theme = 'default' | 'cyberpunk' | 'retro'
-
-const themes: { id: Theme; label: string; color: string }[] = [
-  { id: 'default', label: '默认', color: '#ffd166' },
-  { id: 'cyberpunk', label: '赛博朋克', color: '#ff2d7b' },
-  { id: 'retro', label: '复古', color: '#e8a838' },
-]
+import {
+  applyTheme,
+  getActiveTheme,
+  readStoredTheme,
+  THEMES,
+  type Theme,
+} from '../lib/theme'
 
 export default function ThemeSwitcher() {
-  const [active, setActive] = useState<Theme>(() => {
-    return (localStorage.getItem('theme') as Theme) || 'default'
-  })
+  const [active, setActive] = useState<Theme>(() => readStoredTheme())
 
   useEffect(() => {
-    const root = document.documentElement
-    if (active === 'default') {
-      root.removeAttribute('data-theme')
-    } else {
-      root.setAttribute('data-theme', active)
-    }
-    localStorage.setItem('theme', active)
+    applyTheme(active)
   }, [active])
+
+  useEffect(() => {
+    function onThemeChange(e: Event) {
+      const detail = (e as CustomEvent<Theme>).detail
+      if (detail) setActive(detail)
+      else setActive(getActiveTheme())
+    }
+    window.addEventListener('themechange', onThemeChange)
+    // Sync if theme was set before React mount
+    setActive(getActiveTheme())
+    return () => window.removeEventListener('themechange', onThemeChange)
+  }, [])
 
   return (
     <div className="theme-switcher" role="radiogroup" aria-label="主题">
-      {themes.map((t) => (
+      {THEMES.map((t) => (
         <button
           key={t.id}
+          type="button"
           role="radio"
           aria-checked={active === t.id}
-          title={t.label}
+          title={`${t.label} · ${t.desc}`}
           className={`theme-dot ${active === t.id ? 'active' : ''}`}
           style={{ '--dot-color': t.color } as React.CSSProperties}
           onClick={() => setActive(t.id)}

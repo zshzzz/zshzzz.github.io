@@ -14,9 +14,7 @@ function formatDate(d: Date) {
 }
 
 function getBeijingTime() {
-  const now = new Date()
-  const utc = now.getTime() + now.getTimezoneOffset() * 60000
-  return new Date(utc + 8 * 3600000)
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Shanghai' }))
 }
 
 export default function Clock() {
@@ -32,8 +30,11 @@ export default function Clock() {
 
   return (
     <div className="clock-widget">
-      <div className="clock-label">BEIJING</div>
-      <div className="clock-digits">
+      <div className="clock-top">
+        <div className="clock-label">BEIJING</div>
+        <span className="clock-tz">UTC+8</span>
+      </div>
+      <div className="clock-digits" aria-live="polite">
         <span className="clock-digit-group">{h}</span>
         <span className="clock-colon">:</span>
         <span className="clock-digit-group">{m}</span>

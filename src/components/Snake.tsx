@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useInView } from '../hooks/useInView'
 
 const COLS = 25
 const ROWS = 14
@@ -12,18 +13,29 @@ const HIGH_SCORE_KEY = 'snake-high-score'
 
 export default function Snake() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { ref: wrapRef, inView } = useInView<HTMLDivElement>()
+  const inViewRef = useRef(inView)
   const dirRef = useRef<Dir>('RIGHT')
-  const snakeRef = useRef<Point[]>([{ x: 5, y: 7 }, { x: 4, y: 7 }, { x: 3, y: 7 }])
+  const pendingDirRef = useRef<Dir>('RIGHT')
+  const snakeRef = useRef<Point[]>([
+    { x: 5, y: 7 },
+    { x: 4, y: 7 },
+    { x: 3, y: 7 },
+  ])
   const foodRef = useRef<Point>({ x: 15, y: 7 })
   const scoreRef = useRef(0)
-  const gameRef = useRef<'playing' | 'over' | 'idle'>('playing')
+  const gameRef = useRef<'playing' | 'over' | 'idle'>('idle')
   const animRef = useRef(0)
   const lastTickRef = useRef(0)
   const [score, setScore] = useState(0)
-  const [highScore, setHighScore] = useState(() => {
-    return parseInt(localStorage.getItem(HIGH_SCORE_KEY) || '0', 10)
-  })
-  const [, setGameState] = useState<'playing' | 'over' | 'idle'>('playing')
+  const [highScore, setHighScore] = useState(() =>
+    parseInt(localStorage.getItem(HIGH_SCORE_KEY) || '0', 10)
+  )
+  const [gameState, setGameState] = useState<'playing' | 'over' | 'idle'>('idle')
+
+  useEffect(() => {
+    inViewRef.current = inView
+  }, [inView])
 
   const spawnFood = useCallback(() => {
     const snake = snakeRef.current
@@ -35,8 +47,13 @@ export default function Snake() {
   }, [])
 
   const reset = useCallback(() => {
-    snakeRef.current = [{ x: 5, y: 7 }, { x: 4, y: 7 }, { x: 3, y: 7 }]
+    snakeRef.current = [
+      { x: 5, y: 7 },
+      { x: 4, y: 7 },
+      { x: 3, y: 7 },
+    ]
     dirRef.current = 'RIGHT'
+    pendingDirRef.current = 'RIGHT'
     scoreRef.current = 0
     setScore(0)
     gameRef.current = 'playing'
@@ -44,9 +61,24 @@ export default function Snake() {
     spawnFood()
   }, [spawnFood])
 
+  const setDir = useCallback((next: Dir) => {
+    const dir = dirRef.current
+    const illegal =
+      (next === 'UP' && dir === 'DOWN') ||
+      (next === 'DOWN' && dir === 'UP') ||
+      (next === 'LEFT' && dir === 'RIGHT') ||
+      (next === 'RIGHT' && dir === 'LEFT')
+    if (!illegal) pendingDirRef.current = next
+    if (gameRef.current === 'idle') reset()
+  }, [reset])
+
   useEffect(() => {
-    const canvas = canvasRef.current!
-    const ctx = canvas.getContext('2d')!
+    const el = canvasRef.current
+    if (!el) return
+    const surface = el.getContext('2d')
+    if (!surface) return
+    const canvas: HTMLCanvasElement = el
+    const ctx: CanvasRenderingContext2D = surface
     const w = COLS * SIZE
     const h = ROWS * SIZE
     canvas.width = w
@@ -64,37 +96,49 @@ export default function Snake() {
     }
 
     function draw(ts: number) {
-      const tickInterval = Math.max(60, TICK_BASE - scoreRef.current * 2)
+      if (inViewRef.current && gameRef.current === 'playing') {
+        const tickInterval = Math.max(60, TICK_BASE - scoreRef.current * 2)
+        if (ts - lastTickRef.current > tickInterval) {
+          lastTickRef.current = ts
+          dirRef.current = pendingDirRef.current
+          const snake = snakeRef.current
+          const head = { ...snake[0] }
 
-      if (gameRef.current === 'playing' && ts - lastTickRef.current > tickInterval) {
-        lastTickRef.current = ts
-        const snake = snakeRef.current
-        const head = { ...snake[0] }
+          switch (dirRef.current) {
+            case 'UP':
+              head.y--
+              break
+            case 'DOWN':
+              head.y++
+              break
+            case 'LEFT':
+              head.x--
+              break
+            case 'RIGHT':
+              head.x++
+              break
+          }
 
-        switch (dirRef.current) {
-          case 'UP': head.y--; break
-          case 'DOWN': head.y++; break
-          case 'LEFT': head.x--; break
-          case 'RIGHT': head.x++; break
-        }
+          head.x = (head.x + COLS) % COLS
+          head.y = (head.y + ROWS) % ROWS
 
-        head.x = (head.x + COLS) % COLS
-        head.y = (head.y + ROWS) % ROWS
-
-        if (snake.some((s) => s.x === head.x && s.y === head.y)) {
-          gameRef.current = 'over'
-          setGameState('over')
-          const newHigh = Math.max(scoreRef.current, highScore)
-          setHighScore(newHigh)
-          localStorage.setItem(HIGH_SCORE_KEY, String(newHigh))
-        } else {
-          snake.unshift(head)
-          if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
-            scoreRef.current++
-            setScore(scoreRef.current)
-            spawnFood()
+          if (snake.some((s) => s.x === head.x && s.y === head.y)) {
+            gameRef.current = 'over'
+            setGameState('over')
+            setHighScore((prev) => {
+              const newHigh = Math.max(scoreRef.current, prev)
+              localStorage.setItem(HIGH_SCORE_KEY, String(newHigh))
+              return newHigh
+            })
           } else {
-            snake.pop()
+            snake.unshift(head)
+            if (head.x === foodRef.current.x && head.y === foodRef.current.y) {
+              scoreRef.current++
+              setScore(scoreRef.current)
+              spawnFood()
+            } else {
+              snake.pop()
+            }
           }
         }
       }
@@ -138,16 +182,22 @@ export default function Snake() {
       })
       ctx.globalAlpha = 1
 
-      if (gameRef.current === 'over') {
-        ctx.fillStyle = 'rgba(0,0,0,0.6)'
+      if (gameRef.current === 'over' || gameRef.current === 'idle') {
+        ctx.fillStyle = 'rgba(0,0,0,0.55)'
         ctx.fillRect(0, 0, w, h)
         ctx.fillStyle = colors.textMain
-        ctx.font = `700 24px 'Space Grotesk', sans-serif`
+        ctx.font = `700 22px 'Space Grotesk', sans-serif`
         ctx.textAlign = 'center'
-        ctx.fillText('游戏结束', w / 2, h / 2 - 10)
-        ctx.font = `500 12px 'IBM Plex Mono', monospace`
+        ctx.fillText(gameRef.current === 'over' ? 'Game Over' : 'Ready?', w / 2, h / 2 - 10)
+        ctx.font = `500 12px 'JetBrains Mono', monospace`
         ctx.fillStyle = colors.accent
-        ctx.fillText(`得分: ${scoreRef.current}  |  按空格重新开始`, w / 2, h / 2 + 16)
+        ctx.fillText(
+          gameRef.current === 'over'
+            ? `Score ${scoreRef.current}  ·  space / click`
+            : 'arrows or pad',
+          w / 2,
+          h / 2 + 16
+        )
       }
 
       animRef.current = requestAnimationFrame(draw)
@@ -155,51 +205,102 @@ export default function Snake() {
 
     animRef.current = requestAnimationFrame(draw)
     return () => cancelAnimationFrame(animRef.current)
-  }, [highScore, spawnFood])
+  }, [spawnFood])
 
   useEffect(() => {
-    const canvas = canvasRef.current!
     function onKeyDown(e: KeyboardEvent) {
-      const dir = dirRef.current
       switch (e.key) {
         case 'ArrowUp':
-          if (dir !== 'DOWN') dirRef.current = 'UP'
+          setDir('UP')
           e.preventDefault()
           break
         case 'ArrowDown':
-          if (dir !== 'UP') dirRef.current = 'DOWN'
+          setDir('DOWN')
           e.preventDefault()
           break
         case 'ArrowLeft':
-          if (dir !== 'RIGHT') dirRef.current = 'LEFT'
+          setDir('LEFT')
           e.preventDefault()
           break
         case 'ArrowRight':
-          if (dir !== 'LEFT') dirRef.current = 'RIGHT'
+          setDir('RIGHT')
           e.preventDefault()
           break
         case ' ':
-          if (gameRef.current === 'over') reset()
+          if (gameRef.current === 'over' || gameRef.current === 'idle') reset()
           e.preventDefault()
           break
       }
     }
 
-    canvas.addEventListener('keydown', onKeyDown)
-    return () => canvas.removeEventListener('keydown', onKeyDown)
-  }, [reset])
+    // Only capture keys when pointer is over the widget or canvas focused
+    const el = wrapRef.current
+    if (!el) return
+
+    function onFocusIn() {
+      window.addEventListener('keydown', onKeyDown)
+    }
+    function onFocusOut(e: FocusEvent) {
+      if (!el!.contains(e.relatedTarget as Node)) {
+        window.removeEventListener('keydown', onKeyDown)
+      }
+    }
+    function onEnter() {
+      window.addEventListener('keydown', onKeyDown)
+    }
+    function onLeave() {
+      if (!el!.contains(document.activeElement)) {
+        window.removeEventListener('keydown', onKeyDown)
+      }
+    }
+
+    el.addEventListener('mouseenter', onEnter)
+    el.addEventListener('mouseleave', onLeave)
+    el.addEventListener('focusin', onFocusIn)
+    el.addEventListener('focusout', onFocusOut)
+
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      el.removeEventListener('mouseenter', onEnter)
+      el.removeEventListener('mouseleave', onLeave)
+      el.removeEventListener('focusin', onFocusIn)
+      el.removeEventListener('focusout', onFocusOut)
+    }
+  }, [reset, setDir, wrapRef])
 
   return (
-    <div className="widget-card snake-widget">
+    <div className="widget-card snake-widget" ref={wrapRef}>
       <div className="widget-header">
-        <span className="widget-kicker">贪吃蛇</span>
+        <span className="widget-kicker">Snake</span>
         <div className="snake-scores">
-          <span>得分: {score}</span>
-          <span>最高: {highScore}</span>
+          <span>Score {score}</span>
+          <span>Best {highScore}</span>
         </div>
       </div>
-      <canvas ref={canvasRef} className="snake-canvas" tabIndex={0} />
-      <p className="snake-hint">方向键移动 · 点击画布获取焦点 · 空格重新开始</p>
+      <canvas
+        ref={canvasRef}
+        className="snake-canvas"
+        tabIndex={0}
+        onClick={() => {
+          if (gameState === 'over' || gameState === 'idle') reset()
+          canvasRef.current?.focus()
+        }}
+      />
+      <div className="snake-pad" aria-label="方向控制">
+        <button type="button" className="pad-btn pad-up" onClick={() => setDir('UP')}>
+          ↑
+        </button>
+        <button type="button" className="pad-btn pad-left" onClick={() => setDir('LEFT')}>
+          ←
+        </button>
+        <button type="button" className="pad-btn pad-down" onClick={() => setDir('DOWN')}>
+          ↓
+        </button>
+        <button type="button" className="pad-btn pad-right" onClick={() => setDir('RIGHT')}>
+          →
+        </button>
+      </div>
+      <p className="snake-hint">hover + arrows · pad on mobile · wrap walls · space restart</p>
     </div>
   )
 }

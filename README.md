@@ -1,24 +1,42 @@
-# GitHub Homepage Starter
+# zshzzz · kinetic exhibit
 
-A bold single-page starter for a GitHub personal homepage, built with React, TypeScript, and Vite.
+Personal homepage as a small exhibition: kinetic type installation, terminal apparatus, room-tone vinyl, and two toys.
 
-## Local development
+**Stack:** React · TypeScript · Vite
+
+## Develop
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Customize content
+## Customize
 
-Update the placeholder copy and links in `src/siteData.ts`.
+Edit `src/siteData.ts`:
 
-## Deploy to a GitHub personal homepage
+- `kineticLines` — full-bleed type wall
+- `hotspots` — exhibition labels on the hero
+- `profile` / `manifesto` — short note copy
+- `contactLinks` — signal section
 
-1. Create a repository named `<your-github-username>.github.io`.
-2. Push this project to that repository.
-3. Run `npm run build:pages` to generate the `docs/` folder.
-4. In GitHub Pages, set the publishing source to `Deploy from a branch`.
-5. Choose branch `main` and folder `/docs`.
+## Structure
 
-If you need to publish under a project path instead of the personal root domain, set `VITE_BASE_PATH` in the build environment.
+| Chapter | Content |
+|---------|---------|
+| Installation | Kinetic type + hotspots |
+| Note | Short bio |
+| Apparatus | Interactive terminal |
+| Sound | Clock + WebAudio vinyl |
+| Exhibits | Game of Life + Snake |
+| Signal | Contact |
+
+Accent toggle (top-right `·`): **void** (pure mono) / **ink** (acid lime).
+
+## Deploy (GitHub Pages)
+
+```bash
+npm run build:pages
+```
+
+Publish `docs/` from branch `main`.

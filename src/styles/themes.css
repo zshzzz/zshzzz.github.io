@@ -1,78 +1,15 @@
-/* ===== Theme System ===== */
-/* Default (dark) — already defined in index.css as :root */
+/* Kinetic mono — optional ink accent lives in index.css [data-theme='ink'] */
 
-[data-theme='cyberpunk'] {
-  --bg:
-    radial-gradient(circle at top, rgba(255, 45, 123, 0.08), transparent 18%),
-    linear-gradient(180deg, #0a0014 0%, #0d0020 48%, #120028 100%);
-  --panel: rgba(13, 0, 32, 0.85);
-  --panel-shadow: 0 20px 70px rgba(10, 0, 20, 0.5);
-  --border-soft: rgba(255, 45, 123, 0.15);
-  --border-strong: rgba(0, 240, 255, 0.25);
-  --text-main: #f0e6ff;
-  --text-soft: #c4b8db;
-  --text-muted: #8a7ca0;
-  --accent: #ff2d7b;
-  --accent2: #00f0ff;
-  --glow-color: rgba(255, 45, 123, 0.5);
-  --glow-color2: rgba(0, 240, 255, 0.4);
-  --grid-line: rgba(255, 45, 123, 0.04);
-  --terminal-bg: rgba(10, 0, 20, 0.95);
-  --terminal-text: #00f0ff;
-  --terminal-prompt: #ff2d7b;
-}
-
-[data-theme='retro'] {
-  --bg:
-    radial-gradient(circle at top, rgba(232, 168, 56, 0.06), transparent 18%),
-    linear-gradient(180deg, #1a1612 0%, #1e1a15 48%, #22201a 100%);
-  --panel: rgba(26, 22, 18, 0.88);
-  --panel-shadow: 0 20px 70px rgba(16, 14, 10, 0.4);
-  --border-soft: rgba(232, 168, 56, 0.12);
-  --border-strong: rgba(232, 168, 56, 0.22);
-  --text-main: #f5ead6;
-  --text-soft: #c7b99a;
-  --text-muted: #9a8c72;
-  --accent: #e8a838;
-  --accent2: #4a9e6e;
-  --glow-color: rgba(232, 168, 56, 0.45);
-  --glow-color2: rgba(74, 158, 110, 0.35);
-  --grid-line: rgba(232, 168, 56, 0.04);
-  --terminal-bg: rgba(20, 18, 14, 0.95);
-  --terminal-text: #4a9e6e;
-  --terminal-prompt: #e8a838;
-}
-
-/* Default theme accent2 and derived tokens */
-:root {
-  --accent2: #2ec4b6;
-  --glow-color: rgba(255, 209, 102, 0.4);
-  --glow-color2: rgba(46, 196, 182, 0.35);
-  --grid-line: rgba(255, 255, 255, 0.025);
-  --terminal-bg: rgba(6, 10, 16, 0.95);
-  --terminal-text: #2ec4b6;
-  --terminal-prompt: #ffd166;
-}
-
-/* Smooth theme transitions */
 html,
 body,
-.topbar,
-.hero-panel,
-.section-block,
-.contact-panel,
-.site-footer,
-.signal-card,
-.status-card,
-.stat-card,
-.project-card,
-.capability-card,
-.timeline-item,
-.contact-links a,
-.tag-list li {
+.section-frame,
+.terminal-card,
+.widget-card,
+.vinyl-card,
+.clock-widget,
+.signal-row {
   transition:
     background 0.35s ease,
     border-color 0.35s ease,
-    color 0.35s ease,
-    box-shadow 0.35s ease;
+    color 0.35s ease;
 }

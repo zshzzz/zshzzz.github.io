@@ -1,31 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --bg:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.06), transparent 18%),
-    linear-gradient(180deg, #090d14 0%, #0c111a 48%, #101723 100%);
-  --panel: rgba(12, 17, 26, 0.82);
-  --panel-shadow: 0 20px 70px rgba(2, 6, 16, 0.36);
+  --bg: #050505;
+  --bg-elevated: #0c0c0c;
+  --panel: #0a0a0a;
+  --panel-solid: #0a0a0a;
+  --panel-shadow: none;
   --border-soft: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.18);
-  --text-main: #f4f1ea;
-  --text-soft: #c7c3b8;
-  --text-muted: #9b978e;
-  --accent: #ffd166;
-  --accent2: #2ec4b6;
-  --glow-color: rgba(255, 209, 102, 0.4);
-  --glow-color2: rgba(46, 196, 182, 0.35);
-  --grid-line: rgba(255, 255, 255, 0.025);
-  --terminal-bg: rgba(6, 10, 16, 0.95);
-  --terminal-text: #2ec4b6;
-  --terminal-prompt: #ffd166;
-  --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Cascadia Code', monospace;
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --text-main: #f5f5f5;
+  --text-soft: rgba(245, 245, 245, 0.72);
+  --text-muted: rgba(245, 245, 245, 0.42);
+  --accent: #ffffff;
+  --accent2: rgba(255, 255, 255, 0.55);
+  --glow-color: rgba(255, 255, 255, 0.12);
+  --glow-color2: rgba(255, 255, 255, 0.06);
+  --grid-line: rgba(255, 255, 255, 0.04);
+  --terminal-bg: #070707;
+  --terminal-text: rgba(245, 245, 245, 0.78);
+  --terminal-prompt: #ffffff;
+  --brand-grad: linear-gradient(135deg, #fff, #aaa);
+  --hero-grad: linear-gradient(135deg, #fff, #bbb);
+  --font-display: 'Instrument Sans', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --page-pad: clamp(20px, 4vw, 48px);
+  --content-max: 1120px;
   color-scheme: dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme='ink'] {
+  --accent: #c8ff5a;
+  --accent2: rgba(200, 255, 90, 0.65);
+  --terminal-prompt: #c8ff5a;
+  --terminal-text: #c8ff5a;
+  --glow-color: rgba(200, 255, 90, 0.18);
 }
 
 * {
@@ -41,20 +54,19 @@ body {
   min-width: 320px;
   background: var(--bg);
   color: var(--text-soft);
-  font: 400 16px/1.6 var(--font-display);
+  font: 400 16px/1.6 var(--font-body);
 }
 
+/* subtle film grain */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: radial-gradient(circle at center, black 42%, transparent 90%);
   pointer-events: none;
-  z-index: -3;
+  z-index: 80;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
 }
 
 a {
@@ -72,20 +84,28 @@ select {
   min-height: 100vh;
 }
 
-/* ===== Typewriter ===== */
-.typewriter {
-  display: inline;
-}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 
-.typewriter-cursor {
-  display: inline-block;
-  color: var(--accent);
-  font-weight: 300;
-  animation: cursorBlink 0.8s step-end infinite;
-  margin-left: 2px;
-}
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 
-@keyframes cursorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  .kinetic-hero,
+  .kinetic-hero * {
+    cursor: auto !important;
+  }
+
+  .kinetic-cursor {
+    display: none !important;
+  }
+
+  .kinetic-line {
+    transform: none !important;
+    transition: none !important;
+  }
 }
